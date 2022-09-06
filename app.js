@@ -1,0 +1,45 @@
+const http = require('http');
+const mathM = require('./math')
+
+const PORT = 3000;
+
+const handleRequest = (req, res) => {
+    const {url, method} = req;
+    const body = [];
+    let result
+
+    if (url === '/calculate' && method === 'POST') {
+        req.on('data', (chunk) => {
+            body.push(chunk);
+        });
+        req.on('end', () => {
+            const parsedBody = Buffer.concat(body).toString();
+            // console.log({bodyObject, typeofbodyObject: typeof bodyObject});
+            const bodyObject = JSON.parse(parsedBody);
+
+            console.log({bodyObject});
+            const {action, num1, num2} = bodyObject
+
+            if (action === 'sum') {
+                result = mathM.add(num1, num2)
+            } else if (action === 'subtract') {
+                result = mathM.subtract(num1, num2)
+            } else if (action === 'divide') {
+                result = mathM.divide(num1, num2)
+            } else if (action === 'multiply') {
+                result = mathM.multiply(num1, num2)
+            }
+
+            res.end(JSON.stringify({result}))
+        })
+
+        
+    }
+}
+const server = http.createServer(handleRequest);
+
+server.listen(PORT, () => {
+    console.log(`Server is listening to port: ${PORT}`)
+})
+
+module.exports = server;
